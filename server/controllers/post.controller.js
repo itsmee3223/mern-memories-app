@@ -1,6 +1,7 @@
+const mongoose = require("mongoose");
 const Post = require("../models/Post.model");
 
-const getPost = async (req, res) => {
+const getPosts = async (req, res) => {
   try {
     const postMessages = await Post.find();
     res.status(200).json(postMessages);
@@ -9,10 +10,23 @@ const getPost = async (req, res) => {
   }
 };
 
-const createPost = async (req, res) => {
-  const {} = req.body;
+const getPost = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ msg: `No post with id ${id}` });
+  }
+  try {
+    const post = await Post.findById(id);
+    res.status(202).json(post);
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+};
 
-  const newPost = new Post();
+const createPost = async (req, res) => {
+  const { title, message, selectedFile, creator, tags } = req.body;
+
+  const newPost = new Post({ title, message, selectedFile, creator, tags });
 
   try {
     await newPost.save();
@@ -22,7 +36,54 @@ const createPost = async (req, res) => {
   }
 };
 
+const updatePost = async (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ msg: "No post with id ${id}" });
+  }
+  try {
+    await Post.findByIdAndUpdate(id, body, { new: true });
+    res.status(201).json({ msg: "Success updating post" });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const deletePost = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ msg: `Ther's no memorie with id ${id}` });
+  }
+  try {
+    await Post.findOneAndDelete(id);
+    res.status(202).json({ msg: "Memories has been deleted" });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const likePost = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ msg: `Ther's no memorie with id ${id}` });
+  }
+
+  try {
+    const post = await Post.findById(id);
+
+    await Post.findByIdAndUpdate(id, { likeCount: post.likeCount + 1 });
+    return res.status(200).json({ msg: "Liked..." });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 module.exports = {
-  getPost,
+  getPosts,
   createPost,
+  getPost,
+  updatePost,
+  deletePost,
+  likePost,
 };
