@@ -3,7 +3,7 @@ import Post from "./Post/Post";
 import { Grid, CircularProgress } from "@material-ui/core";
 import { useSelector } from "react-redux";
 
-import useStyles from "./style";
+import useStyles from "./styles";
 
 const Posts = ({ setCurrentId }) => {
   const posts = useSelector((state) => state.posts);
