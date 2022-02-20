@@ -18,7 +18,7 @@ import { AUTH } from "../../constants/actionTypes";
 import useStyles from "./styles";
 import Input from "./Input";
 
-const initialState = {
+const initialForm = {
   firstName: "",
   lastName: "",
   email: "",
@@ -27,7 +27,7 @@ const initialState = {
 };
 
 const SignUp = () => {
-  const [form, setForm] = useState(initialState);
+  const [form, setForm] = useState(initialForm);
   const [isSignup, setIsSignup] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ const SignUp = () => {
   const handleShowPassword = () => setShowPassword(!showPassword);
 
   const switchMode = () => {
-    setForm(initialState);
+    setForm(initialForm);
     setIsSignup((prevIsSignup) => !prevIsSignup);
     setShowPassword(false);
   };

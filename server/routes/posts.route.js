@@ -1,19 +1,19 @@
 const express = require("express");
 const postController = require("../controllers/post.controller");
+const authMiddleware = require("../middlewares/authMiddleware");
 
-const routes = express.Router();
+const router = express.Router();
 
-routes
+router
   .route("/posts")
   .get(postController.getPosts)
-  .post(postController.createPost);
+  .post(authMiddleware, postController.createPost);
 
-routes
+router
   .route("/posts/:id")
-  .get(postController.getPost)
-  .patch(postController.updatePost)
-  .delete(postController.deletePost);
+  .patch(authMiddleware, postController.updatePost)
+  .delete(authMiddleware, postController.deletePost);
 
-routes.patch("/posts/:id/like-post", postController.likePost);
+router.patch("/posts/:id/like-post", authMiddleware, postController.likePost);
 
-module.exports = routes;
+module.exports = router;
