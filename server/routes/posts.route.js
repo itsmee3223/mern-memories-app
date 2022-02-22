@@ -5,15 +5,18 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 router
-  .route("/posts")
+  .route("/")
   .get(postController.getPosts)
   .post(authMiddleware, postController.createPost);
 
+router.get("/search", postController.getPostBySearch);
+
 router
-  .route("/posts/:id")
+  .route("/:id")
+  .get(postController.getPost)
   .patch(authMiddleware, postController.updatePost)
   .delete(authMiddleware, postController.deletePost);
 
-router.patch("/posts/:id/like-post", authMiddleware, postController.likePost);
+router.patch("/:id/like-post", authMiddleware, postController.likePost);
 
 module.exports = router;

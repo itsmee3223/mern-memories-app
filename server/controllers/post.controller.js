@@ -2,27 +2,69 @@ const mongoose = require("mongoose");
 const Post = require("../models/Post.model");
 
 const getPosts = async (req, res) => {
+  const { page } = req.query;
+
   try {
-    const posts = await Post.find();
-    res.status(200).json(posts);
+    const LIMIT = 8;
+    const startIndex = (Number(page) - 1) * LIMIT; // get the starting index of every page
+
+    const total = await Post.countDocuments({});
+    const posts = await Post.find()
+      .sort({ _id: -1 })
+      .limit(LIMIT)
+      .skip(startIndex);
+
+    res.json({
+      data: posts,
+      currentPage: Number(page),
+      numberOfPages: Math.ceil(total / LIMIT),
+    });
   } catch (error) {
-    res.status(404).json({ msg: `Error: ${error}` });
+    res.status(404).json({ message: error.message });
+  }
+};
+
+const getPost = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const post = await Post.findById(id);
+
+    res.status(200).json(post);
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+};
+
+const getPostBySearch = async (req, res) => {
+  const { searchQuery, tags } = req.query;
+
+  try {
+    const title = new RegExp(searchQuery, "i");
+
+    const posts = await Post.find({
+      $or: [{ title }, { tags: { $in: tags.split(",") } }],
+    });
+
+    res.json({ data: posts });
+  } catch (error) {
+    res.status(404).json({ message: error.message });
   }
 };
 
 const createPost = async (req, res) => {
   const post = req.body;
 
-  const newPostMessage = new Post({
+  const newPost = new Post({
     ...post,
     creator: req.userId,
     createdAt: new Date().toISOString(),
   });
 
   try {
-    await newPostMessage.save();
+    await newPost.save();
 
-    res.status(201).json(newPostMessage);
+    res.status(201).json(newPost);
   } catch (error) {
     res.status(409).json({ message: error.message });
   }
@@ -30,16 +72,16 @@ const createPost = async (req, res) => {
 
 const updatePost = async (req, res) => {
   const { id } = req.params;
-  const { body } = req;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({ msg: "No post with id ${id}" });
-  }
-  try {
-    await Post.findByIdAndUpdate(id, body, { new: true });
-    res.status(201).json({ msg: "Success updating post" });
-  } catch (error) {
-    console.error(error);
-  }
+  const { title, message, creator, selectedFile, tags } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id))
+    return res.status(404).send(`No post with id: ${id}`);
+
+  const updatedPost = { creator, title, message, tags, selectedFile, _id: id };
+
+  await Post.findByIdAndUpdate(id, updatedPost, { new: true });
+
+  res.json(updatedPost);
 };
 
 const deletePost = async (req, res) => {
@@ -80,8 +122,10 @@ const likePost = async (req, res) => {
 
 module.exports = {
   getPosts,
+  getPost,
   createPost,
   updatePost,
   deletePost,
   likePost,
+  getPostBySearch,
 };
