@@ -120,6 +120,16 @@ const likePost = async (req, res) => {
   res.status(200).json(updatedPost);
 };
 
+const commentPost = async (req, res) => {
+  const { id } = req.params;
+  const { value } = req.body;
+
+  const post = await Post.findById(id);
+  post.comments.push(value);
+  const updatedPost = await Post.findByIdAndUpdate(id, post, { new: true });
+  res.json(updatedPost);
+};
+
 module.exports = {
   getPosts,
   getPost,
@@ -128,4 +138,5 @@ module.exports = {
   deletePost,
   likePost,
   getPostBySearch,
+  commentPost,
 };

@@ -9,6 +9,8 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
+import CommentSection from './CommentSection'
+
 import { getPost, getPostsBySearch } from "../../actions/posts";
 
 import useStyles from "./styles.js";
@@ -75,7 +77,7 @@ const PostDetail = () => {
           </Typography>
           <Divider style={{ margin: "20px 0" }} />
           <Typography variant="body1">
-            <strong>Comments - coming soon!</strong>
+            <CommentSection post={post} />
           </Typography>
           <Divider style={{ margin: "20px 0" }} />
         </div>

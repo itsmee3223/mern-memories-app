@@ -18,5 +18,6 @@ router
   .delete(authMiddleware, postController.deletePost);
 
 router.patch("/:id/like-post", authMiddleware, postController.likePost);
+router.post("/:id/comment", postController.commentPost);
 
 module.exports = router;
